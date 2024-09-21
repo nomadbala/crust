@@ -27,6 +27,11 @@ func (h *Handler) SignUp(c *gin.Context) {
 		return
 	}
 
+	err := user.ParseRegistrationRequest(request)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+	}
+
 	user, err := h.services.UsersService.SignUp(request)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})

@@ -16,7 +16,7 @@ var ctx = context.Background()
 func (u UsersRepository) List() ([]sqlc.User, error) {
 	users, err := u.queries.ListUsers(ctx)
 	if err != nil {
-		return nil, err
+		return nil, errы
 	}
 
 	return users, nil
