@@ -95,6 +95,35 @@ func (ns NullLanguagePreference) Value() (driver.Value, error) {
 	return string(ns.LanguagePreference), nil
 }
 
+type Comment struct {
+	ID        pgtype.UUID      `db:"id" json:"id"`
+	PostID    pgtype.UUID      `db:"post_id" json:"post_id"`
+	UserID    pgtype.UUID      `db:"user_id" json:"user_id"`
+	Content   string           `db:"content" json:"content"`
+	CreatedAt pgtype.Timestamp `db:"created_at" json:"created_at"`
+}
+
+type Dislike struct {
+	ID        pgtype.UUID      `db:"id" json:"id"`
+	PostID    pgtype.UUID      `db:"post_id" json:"post_id"`
+	UserID    pgtype.UUID      `db:"user_id" json:"user_id"`
+	CreatedAt pgtype.Timestamp `db:"created_at" json:"created_at"`
+}
+
+type Like struct {
+	ID        pgtype.UUID      `db:"id" json:"id"`
+	PostID    pgtype.UUID      `db:"post_id" json:"post_id"`
+	UserID    pgtype.UUID      `db:"user_id" json:"user_id"`
+	CreatedAt pgtype.Timestamp `db:"created_at" json:"created_at"`
+}
+
+type Post struct {
+	ID        pgtype.UUID      `db:"id" json:"id"`
+	UserID    pgtype.UUID      `db:"user_id" json:"user_id"`
+	Content   pgtype.Text      `db:"content" json:"content"`
+	CreatedAt pgtype.Timestamp `db:"created_at" json:"created_at"`
+}
+
 type User struct {
 	ID                  pgtype.UUID            `db:"id" json:"id"`
 	Username            string                 `db:"username" json:"username"`
