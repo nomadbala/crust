@@ -7,6 +7,7 @@ import (
 
 type Repository interface {
 	List() ([]sqlc.User, error)
-	Get(uuid pgtype.UUID) (sqlc.User, error)
-	Create(request SaltedRegistrationRequest) (sqlc.User, error)
+	GetById(uuid pgtype.UUID) (sqlc.User, error)
+	Get(username string) (id pgtype.UUID, password, salt string, err error)
+	Create(params sqlc.CreateUserParams) (sqlc.User, error)
 }

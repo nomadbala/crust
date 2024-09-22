@@ -3,32 +3,7 @@ package user
 import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nomadbala/crust/server/db/postgres/sqlc"
-	"net/mail"
 )
-
-type RegistrationRequest struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
-	Email    string `json:"email" binding:"required"`
-}
-
-func ParseRegistrationRequest(request RegistrationRequest) error {
-	_, err := mail.ParseAddress(request.Email)
-
-	if err != nil {
-		return err
-	}
-}
-
-type SaltedRegistrationRequest struct {
-	RegistrationRequest
-	Salt string
-}
-
-type LoginRequest struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
-}
 
 type Response struct {
 	ID                 pgtype.UUID      `db:"id" json:"id"`

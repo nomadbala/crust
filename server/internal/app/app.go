@@ -9,6 +9,7 @@ import (
 	"github.com/nomadbala/crust/server/internal/repository"
 	"github.com/nomadbala/crust/server/internal/service"
 	"github.com/nomadbala/crust/server/pkg/log"
+	"github.com/nomadbala/crust/server/pkg/resend"
 	"github.com/nomadbala/crust/server/pkg/server"
 	"go.uber.org/zap"
 	"os"
@@ -41,9 +42,11 @@ func Run() {
 		}
 	}(conn, ctx)
 
-	repos := repository.New(sqlc.New(conn))
+	repos := repository.New(sqlc.New(conn), ctx)
 	services := service.New(repos)
 	handlers := handler.New(services)
+
+	resend.ConfigureResendClient()
 
 	servers := server.New(os.Getenv("APP_PORT"), handlers.ConfigureRoutes())
 

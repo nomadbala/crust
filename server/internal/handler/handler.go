@@ -16,15 +16,16 @@ func New(services *service.Service) *Handler {
 func (h *Handler) ConfigureRoutes() *gin.Engine {
 	router := gin.New()
 
-	api := router.Group("/api")
+	auth := router.Group("/auth")
+	{
+		auth.POST("/sign-up", h.SignUp)
+		auth.POST("/sign-in", h.SignIn)
+	}
+
+	api := router.Group("/api", h.Middleware)
 	{
 		v1 := api.Group("/v1")
 		{
-			auth := v1.Group("/auth")
-			{
-				auth.POST("/", h.SignUp)
-			}
-
 			users := v1.Group("/users")
 			{
 				users.GET("/", h.GetAllUsers)

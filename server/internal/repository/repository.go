@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"github.com/nomadbala/crust/server/db/postgres/sqlc"
 	"github.com/nomadbala/crust/server/internal/domain/user"
 )
@@ -12,8 +13,8 @@ type Repository struct {
 	UsersRepository user.Repository
 }
 
-func New(queries *sqlc.Queries) *Repository {
+func New(queries *sqlc.Queries, ctx context.Context) *Repository {
 	return &Repository{
-		UsersRepository: NewUsersRepository(queries),
+		UsersRepository: NewUsersRepository(queries, ctx),
 	}
 }

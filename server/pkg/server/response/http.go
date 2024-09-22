@@ -1,19 +1,20 @@
 package response
 
-import "fmt"
-
-type HttpError struct {
-	StatusCode int    `json:"statusCode"`
-	Message    string `json:"message"`
+func NewResponseEntity() *ResponseEntity {
+	return &ResponseEntity{}
 }
 
-func (e HttpError) Error() string {
-	return fmt.Sprintf("status: %d, message: %s", e.StatusCode, e.Message)
+type ResponseEntity struct {
+	HttpStatus int         `json:"-"`
+	Content    interface{} `json:"data"`
 }
 
-func NewHttpError(statusCode int, message string) HttpError {
-	return HttpError{
-		StatusCode: statusCode,
-		Message:    message,
-	}
+func (r ResponseEntity) StatusCode(status int) *ResponseEntity {
+	r.HttpStatus = status
+	return &r
+}
+
+func (r ResponseEntity) Body(body interface{}) *ResponseEntity {
+	r.Content = body
+	return &r
 }

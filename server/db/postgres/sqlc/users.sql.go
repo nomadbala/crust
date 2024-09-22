@@ -48,12 +48,30 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, username, password_hash, salt, email, first_name, last_name, phone_number, date_of_birth, gender, bio, language_preference, created_at, updated_at, failed_login_attempts, is_verified FROM users
-WHERE id = $1 LIMIT 1
+SELECT id, password_hash, salt FROM users
+WHERE username = $1
 `
 
-func (q *Queries) GetUser(ctx context.Context, id pgtype.UUID) (User, error) {
-	row := q.db.QueryRow(ctx, getUser, id)
+type GetUserRow struct {
+	ID           pgtype.UUID `db:"id" json:"id"`
+	PasswordHash string      `db:"password_hash" json:"password_hash"`
+	Salt         string      `db:"salt" json:"salt"`
+}
+
+func (q *Queries) GetUser(ctx context.Context, username string) (GetUserRow, error) {
+	row := q.db.QueryRow(ctx, getUser, username)
+	var i GetUserRow
+	err := row.Scan(&i.ID, &i.PasswordHash, &i.Salt)
+	return i, err
+}
+
+const getUserById = `-- name: GetUserById :one
+SELECT id, username, password_hash, salt, email, first_name, last_name, phone_number, date_of_birth, gender, bio, language_preference, created_at, updated_at, failed_login_attempts, is_verified FROM users
+WHERE id = $1 LIMIT  1
+`
+
+func (q *Queries) GetUserById(ctx context.Context, id pgtype.UUID) (User, error) {
+	row := q.db.QueryRow(ctx, getUserById, id)
 	var i User
 	err := row.Scan(
 		&i.ID,
