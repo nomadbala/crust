@@ -1,0 +1,11 @@
+services:
+  app:
+    image: crust
+    container_name: crust
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "81:80"
+    env_file:
+      - .env

@@ -1,46 +1,21 @@
-### Регистрация нового пользователя (успех)
-POST http://localhost:8081/api/v1/signup
+@hostname=localhost
+@port=8081
+
+POST http://{{hostname}}}:{{port}}/auth/sign-up
 Content-Type: application/json
 
 {
-  "username": "newuser",
-  "password": "securepassword123",
-  "email": "newuser@example.com"
+  "username": "username",
+  "password": "password",
+  "email": "email@example.com"
 }
 
-### Регистрация с отсутствующим именем пользователя
-POST http://localhost:8081/api/v1/signup
+###
+
+POST http://{{hostname}}}:{{port}}/auth/sign-in
 Content-Type: application/json
 
 {
-  "password": "securepassword123",
-  "email": "newuser@example.com"
-}
-
-### Регистрация с отсутствующим паролем
-POST http://localhost:8081/api/v1/signup
-Content-Type: application/json
-
-{
-  "username": "newuser",
-  "email": "newuser@example.com"
-}
-
-### Регистрация с отсутствующим email
-POST http://localhost:8081/api/v1/signup
-Content-Type: application/json
-
-{
-  "username": "newuser",
-  "password": "securepassword123"
-}
-
-### Регистрация с неверным форматом email
-POST http://localhost:8081/api/v1/signup
-Content-Type: application/json
-
-{
-  "username": "newuser",
-  "password": "securepassword123",
-  "email": "not-an-email"
+  "username": "username",
+  "password": "password"
 }
