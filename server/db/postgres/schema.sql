@@ -26,10 +26,13 @@ CREATE TABLE IF NOT EXISTS posts
 (
     id         UUID PRIMARY KEY DEFAULT GEN_RANDOM_UUID(),
     user_id    UUID NOT NULL,
-    content    TEXT,
+    content    TEXT NOT NULL,
     created_at TIMESTAMP        DEFAULT CURRENT_TIMESTAMP,
+    views      INT              DEFAULT 0,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
+
+CREATE INDEX IF NOT EXISTS idx_posts_id ON posts(id);
 
 CREATE TABLE IF NOT EXISTS comments
 (

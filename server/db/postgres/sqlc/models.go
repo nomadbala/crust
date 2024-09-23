@@ -120,8 +120,9 @@ type Like struct {
 type Post struct {
 	ID        pgtype.UUID      `db:"id" json:"id"`
 	UserID    pgtype.UUID      `db:"user_id" json:"user_id"`
-	Content   pgtype.Text      `db:"content" json:"content"`
+	Content   string           `db:"content" json:"content"`
 	CreatedAt pgtype.Timestamp `db:"created_at" json:"created_at"`
+	Views     pgtype.Int4      `db:"views" json:"views"`
 }
 
 type User struct {

@@ -30,6 +30,13 @@ func (h *Handler) ConfigureRoutes() *gin.Engine {
 			{
 				users.GET("/", h.GetAllUsers)
 			}
+
+			posts := v1.Group("/posts")
+			{
+				posts.POST("/", h.CreatePost)
+				posts.GET("/", h.GetAllPosts)
+				posts.GET("/:id", h.GetPostById)
+			}
 		}
 	}
 

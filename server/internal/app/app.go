@@ -9,6 +9,7 @@ import (
 	"github.com/nomadbala/crust/server/internal/repository"
 	"github.com/nomadbala/crust/server/internal/service"
 	"github.com/nomadbala/crust/server/pkg/log"
+	"github.com/nomadbala/crust/server/pkg/redis"
 	"github.com/nomadbala/crust/server/pkg/resend"
 	"github.com/nomadbala/crust/server/pkg/server"
 	"go.uber.org/zap"
@@ -30,7 +31,7 @@ func Run() {
 		log.Logger.Error("error occurred while loading .env file", zap.Error(err))
 	}
 
-	conn, err := pgx.Connect(ctx, os.Getenv("POSTGRES_DATABASE_URL"))
+	conn, err := pgx.Connect(ctx, os.Getenv("SUPABASE_DATABASE_URL"))
 	if err != nil {
 		log.Logger.Error("failed to connect to database", zap.Error(err))
 	}
@@ -41,6 +42,8 @@ func Run() {
 			log.Logger.Error("failed to close connection", zap.Error(err))
 		}
 	}(conn, ctx)
+
+	redis.ConfigureRedisClient(ctx)
 
 	repos := repository.New(sqlc.New(conn), ctx)
 	services := service.New(repos)

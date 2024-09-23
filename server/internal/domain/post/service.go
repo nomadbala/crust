@@ -1,0 +1,13 @@
+package post
+
+import (
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/nomadbala/crust/server/db/postgres/sqlc"
+)
+
+type Service interface {
+	List() ([]*Response, error)
+	Get(id pgtype.UUID) (*Response, error)
+	GetPopular(limit, offset int) ([]*Response, error)
+	Create(params sqlc.CreatePostParams) (*Response, error)
+}
