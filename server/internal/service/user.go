@@ -23,3 +23,17 @@ func (s *UsersService) List() ([]*user.Response, error) {
 
 	return responses, nil
 }
+
+//func (s *UsersService) SendEmailVerification(id uuid.UUID) (bool, error) {
+//	receiver, err := s.repository.GetEmailById(id)
+//	if err != nil {
+//		return false, err
+//	}
+//
+//	err = email.SendVerificationEmail(receiver)
+//	if err != nil {
+//		return false, err
+//	}
+//
+//	return true, nil
+//}

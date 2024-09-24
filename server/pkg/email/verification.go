@@ -12,9 +12,13 @@ func GenerateVerificationCode() string {
 	return fmt.Sprintf("%06d", rand.Intn(1000000))
 }
 
-func SendVerificationEmail(receiver string) {
+func SendVerificationEmail(receiver string) error {
 	verificationCode := GenerateVerificationCode()
-	message := fmt.Sprintf("Your verification code: %s", verificationCode)
 
-	err := resend.SendResendMessage(re)
+	err := resend.SendResendMessage(receiver, verificationCode)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

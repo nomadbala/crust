@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 	"github.com/nomadbala/crust/server/db/postgres/sqlc"
 )
 
@@ -24,7 +24,7 @@ func (p PostsRepository) List() ([]sqlc.Post, error) {
 	return posts, nil
 }
 
-func (p PostsRepository) Get(id pgtype.UUID) (sqlc.Post, error) {
+func (p PostsRepository) Get(id uuid.UUID) (sqlc.Post, error) {
 	post, err := p.queries.GetPostById(p.ctx, id)
 	if err != nil {
 		return sqlc.Post{}, err

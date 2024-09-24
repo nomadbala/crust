@@ -8,7 +8,7 @@ package sqlc
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -47,15 +47,27 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
+const getEmailById = `-- name: GetEmailById :one
+SELECT users.email FROM users
+WHERE id = $1
+`
+
+func (q *Queries) GetEmailById(ctx context.Context, id uuid.UUID) (string, error) {
+	row := q.db.QueryRow(ctx, getEmailById, id)
+	var email string
+	err := row.Scan(&email)
+	return email, err
+}
+
 const getUser = `-- name: GetUser :one
 SELECT id, password_hash, salt FROM users
 WHERE username = $1
 `
 
 type GetUserRow struct {
-	ID           pgtype.UUID `db:"id" json:"id"`
-	PasswordHash string      `db:"password_hash" json:"password_hash"`
-	Salt         string      `db:"salt" json:"salt"`
+	ID           uuid.UUID `db:"id" json:"id"`
+	PasswordHash string    `db:"password_hash" json:"password_hash"`
+	Salt         string    `db:"salt" json:"salt"`
 }
 
 func (q *Queries) GetUser(ctx context.Context, username string) (GetUserRow, error) {
@@ -70,7 +82,7 @@ SELECT id, username, password_hash, salt, email, first_name, last_name, phone_nu
 WHERE id = $1 LIMIT  1
 `
 
-func (q *Queries) GetUserById(ctx context.Context, id pgtype.UUID) (User, error) {
+func (q *Queries) GetUserById(ctx context.Context, id uuid.UUID) (User, error) {
 	row := q.db.QueryRow(ctx, getUserById, id)
 	var i User
 	err := row.Scan(

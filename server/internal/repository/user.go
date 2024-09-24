@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 	"github.com/nomadbala/crust/server/db/postgres/sqlc"
 )
 
@@ -15,8 +15,8 @@ func NewUsersRepository(queries *sqlc.Queries, ctx context.Context) *UsersReposi
 	return &UsersRepository{queries, ctx}
 }
 
-func (u UsersRepository) List() ([]sqlc.User, error) {
-	users, err := u.queries.ListUsers(u.ctx)
+func (r UsersRepository) List() ([]sqlc.User, error) {
+	users, err := r.queries.ListUsers(r.ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -24,18 +24,18 @@ func (u UsersRepository) List() ([]sqlc.User, error) {
 	return users, nil
 }
 
-func (u UsersRepository) Get(username string) (id pgtype.UUID, password, salt string, err error) {
+func (r UsersRepository) Get(username string) (id uuid.UUID, password, salt string, err error) {
 	var getUserRow sqlc.GetUserRow
-	getUserRow, err = u.queries.GetUser(u.ctx, username)
+	getUserRow, err = r.queries.GetUser(r.ctx, username)
 	if err != nil {
-		return pgtype.UUID{}, "", "", err
+		return uuid.Nil, "", "", err
 	}
 
 	return getUserRow.ID, getUserRow.PasswordHash, getUserRow.Salt, nil
 }
 
-func (u UsersRepository) GetById(uuid pgtype.UUID) (sqlc.User, error) {
-	user, err := u.queries.GetUserById(u.ctx, uuid)
+func (r UsersRepository) GetById(uuid uuid.UUID) (sqlc.User, error) {
+	user, err := r.queries.GetUserById(r.ctx, uuid)
 	if err != nil {
 		return sqlc.User{}, err
 	}
@@ -43,8 +43,17 @@ func (u UsersRepository) GetById(uuid pgtype.UUID) (sqlc.User, error) {
 	return user, nil
 }
 
-func (u UsersRepository) Create(params sqlc.CreateUserParams) (sqlc.User, error) {
-	user, err := u.queries.CreateUser(u.ctx, params)
+//func (r UsersRepository) GetEmailById(uuid uuid.UUID) (string, error) {
+//	email, err := r.queries.GetEmailById(r.ctx, uuid)
+//	if err != nil {
+//		return "", err
+//	}
+//
+//	return email, nil
+//}
+
+func (r UsersRepository) Create(params sqlc.CreateUserParams) (sqlc.User, error) {
+	user, err := r.queries.CreateUser(r.ctx, params)
 	if err != nil {
 		return sqlc.User{}, err
 	}

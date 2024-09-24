@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"github.com/google/uuid"
 	"net/http"
 	"strings"
 
@@ -32,18 +33,24 @@ func (h *Handler) Middleware(c *gin.Context) {
 	c.Set("userId", userId)
 }
 
-func getUserId(c *gin.Context) (int, error) {
+func getUserId(c *gin.Context) (uuid.UUID, error) {
 	id, exists := c.Get("userId")
 	if !exists {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "No user id found"})
-		return -1, errors.New("user id not found")
+		return uuid.Nil, errors.New("user id not found")
 	}
 
-	userId, ok := id.(int)
+	userId, ok := id.(string)
 	if !ok {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid user id"})
-		return -1, errors.New("invalid user id")
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid user id format"})
+		return uuid.Nil, errors.New("invalid user id format")
 	}
 
-	return userId, nil
+	parsedUUID, err := uuid.Parse(userId)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid UUID"})
+		return uuid.Nil, errors.New("invalid UUID format")
+	}
+
+	return parsedUUID, nil
 }

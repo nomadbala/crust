@@ -1,12 +1,13 @@
 package user
 
 import (
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nomadbala/crust/server/db/postgres/sqlc"
 )
 
 type Response struct {
-	ID                 pgtype.UUID      `db:"id" json:"id"`
+	ID                 uuid.UUID        `db:"id" json:"id"`
 	Username           string           `db:"username" json:"username"`
 	Email              string           `db:"email" json:"email"`
 	FirstName          *pgtype.Text     `db:"first_name" json:"first_name"`

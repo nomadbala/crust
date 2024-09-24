@@ -29,6 +29,7 @@ func (h *Handler) ConfigureRoutes() *gin.Engine {
 			users := v1.Group("/users")
 			{
 				users.GET("/", h.GetAllUsers)
+				//users.POST("/send_verification_email", h.SendVerificationEmail)
 			}
 
 			posts := v1.Group("/posts")

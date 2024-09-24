@@ -1,9 +1,8 @@
 package handler
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 	"github.com/nomadbala/crust/server/db/postgres/sqlc"
 	"net/http"
 )
@@ -24,10 +23,10 @@ func (h *Handler) GetAllPosts(c *gin.Context) {
 }
 
 func (h *Handler) GetPostById(c *gin.Context) {
-	idStr := c.Param("id") // Получаем id из параметров URL
+	idStr := c.Param("id")
 
-	var id pgtype.UUID
-	err := id.Scan(idStr) // Используем метод Scan для преобразования
+	var id uuid.UUID
+	err := id.Scan(idStr)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
@@ -38,8 +37,6 @@ func (h *Handler) GetPostById(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"message": err.Error()})
 		return
 	}
-
-	fmt.Printf("qwqwe: %s", post.Content)
 
 	c.JSON(http.StatusOK, post)
 }

@@ -3,7 +3,7 @@ package auth
 import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 	"net/mail"
 )
 
@@ -38,5 +38,5 @@ type LoginRequest struct {
 
 type TokenClaims struct {
 	jwt.StandardClaims
-	UserId pgtype.UUID `json:"user_id"`
+	UserId uuid.UUID `json:"user_id"`
 }

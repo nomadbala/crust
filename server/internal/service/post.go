@@ -2,21 +2,20 @@ package service
 
 import (
 	"encoding/hex"
-	"fmt"
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 	"github.com/nomadbala/crust/server/db/postgres/sqlc"
 	"github.com/nomadbala/crust/server/internal/domain/post"
-	"github.com/nomadbala/crust/server/pkg/redis"
 	"github.com/nomadbala/crust/server/pkg/resend"
 	"log"
 )
 
 type PostsService struct {
 	repository post.Repository
+	cache      post.Cache
 }
 
-func NewPostsService(repository post.Repository) *PostsService {
-	return &PostsService{repository}
+func NewPostsService(repository post.Repository, cache post.Cache) *PostsService {
+	return &PostsService{repository, cache}
 }
 
 func (p PostsService) List() ([]*post.Response, error) {
@@ -40,69 +39,24 @@ func (p PostsService) List() ([]*post.Response, error) {
 	return responses, nil
 }
 
-//	func (p PostsService) Get(id pgtype.UUID) (*post.Response, error) {
-//		if !id.Valid {
-//			return nil, fmt.Errorf("invalid UUID")
-//		}
-//
-//		postId := encodeUUID(id.Bytes)
-//
-//		redisdPost, err := redis.GetPostFromCache(postId)
-//		if err == nil {
-//			var cachedPostData sqlc.Post
-//			if err := json.Unmarshal([]byte(redisdPost), &cachedPostData); err != nil {
-//				return nil, fmt.Errorf("error deserializing redisd post: %v", err)
-//			}
-//			return &post.Response{
-//				Id:        cachedPostData.ID,
-//				UserId:    cachedPostData.UserID,
-//				Content:   "Redis",
-//				CreatedAt: cachedPostData.CreatedAt,
-//			}, nil
-//		}
-//
-//		savedPost, err := p.repository.Get(id)
-//		if err != nil {
-//			return nil, err
-//		}
-//
-//		err = redis.CachePost(postId, savedPost)
-//		if err != nil {
-//			return nil, err
-//		}
-//
-//		response := post.ConvertEntityToResponse(savedPost)
-//
-//		return response, nil
-//	}
-
-func (p PostsService) Get(id pgtype.UUID) (*post.Response, error) {
-	if !id.Valid {
-		return nil, fmt.Errorf("invalid UUID")
-	}
-
-	postId := encodeUUID(id.Bytes)
-
-	// Попробуем получить данные из Redis
-	cachedPostData, err := redis.GetPostFromCache(postId)
-	if err == nil && cachedPostData.ID.Valid {
+func (p PostsService) Get(id uuid.UUID) (*post.Response, error) {
+	cachedPost, err := p.cache.Get(id)
+	if err == nil {
 		return &post.Response{
-			Id:        cachedPostData.ID,
-			UserId:    cachedPostData.UserID,
-			Content:   "Redis",
-			CreatedAt: cachedPostData.CreatedAt,
+			Id:        cachedPost.ID,
+			UserId:    cachedPost.UserID,
+			Content:   cachedPost.Content + " Redis",
+			CreatedAt: cachedPost.CreatedAt,
 		}, nil
 	}
 
-	// Если данные не найдены в Redis, получаем их из PostgreSQL
 	savedPost, err := p.repository.Get(id)
 	if err != nil {
 		return nil, err
 	}
 
-	// Кэшируем результат из PostgreSQL асинхронно
 	go func() {
-		if cacheErr := redis.CachePost(postId, savedPost); cacheErr != nil {
+		if cacheErr := p.cache.Set(id, savedPost); cacheErr != nil {
 			log.Printf("Error caching post: %v", cacheErr)
 		}
 	}()

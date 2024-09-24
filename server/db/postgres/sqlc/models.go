@@ -8,6 +8,7 @@ import (
 	"database/sql/driver"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -96,50 +97,50 @@ func (ns NullLanguagePreference) Value() (driver.Value, error) {
 }
 
 type Comment struct {
-	ID        pgtype.UUID      `db:"id" json:"id"`
-	PostID    pgtype.UUID      `db:"post_id" json:"post_id"`
-	UserID    pgtype.UUID      `db:"user_id" json:"user_id"`
+	ID        uuid.UUID        `db:"id" json:"id"`
+	PostID    uuid.UUID        `db:"post_id" json:"post_id"`
+	UserID    uuid.UUID        `db:"user_id" json:"user_id"`
 	Content   string           `db:"content" json:"content"`
 	CreatedAt pgtype.Timestamp `db:"created_at" json:"created_at"`
 }
 
 type Dislike struct {
-	ID        pgtype.UUID      `db:"id" json:"id"`
-	PostID    pgtype.UUID      `db:"post_id" json:"post_id"`
-	UserID    pgtype.UUID      `db:"user_id" json:"user_id"`
+	ID        uuid.UUID        `db:"id" json:"id"`
+	PostID    uuid.UUID        `db:"post_id" json:"post_id"`
+	UserID    uuid.UUID        `db:"user_id" json:"user_id"`
 	CreatedAt pgtype.Timestamp `db:"created_at" json:"created_at"`
 }
 
 type Like struct {
-	ID        pgtype.UUID      `db:"id" json:"id"`
-	PostID    pgtype.UUID      `db:"post_id" json:"post_id"`
-	UserID    pgtype.UUID      `db:"user_id" json:"user_id"`
+	ID        uuid.UUID        `db:"id" json:"id"`
+	PostID    uuid.UUID        `db:"post_id" json:"post_id"`
+	UserID    uuid.UUID        `db:"user_id" json:"user_id"`
 	CreatedAt pgtype.Timestamp `db:"created_at" json:"created_at"`
 }
 
 type Post struct {
-	ID        pgtype.UUID      `db:"id" json:"id"`
-	UserID    pgtype.UUID      `db:"user_id" json:"user_id"`
+	ID        uuid.UUID        `db:"id" json:"id"`
+	UserID    uuid.UUID        `db:"user_id" json:"user_id"`
 	Content   string           `db:"content" json:"content"`
 	CreatedAt pgtype.Timestamp `db:"created_at" json:"created_at"`
-	Views     pgtype.Int4      `db:"views" json:"views"`
+	Views     *int32           `db:"views" json:"views"`
 }
 
 type User struct {
-	ID                  pgtype.UUID            `db:"id" json:"id"`
+	ID                  uuid.UUID              `db:"id" json:"id"`
 	Username            string                 `db:"username" json:"username"`
 	PasswordHash        string                 `db:"password_hash" json:"password_hash"`
 	Salt                string                 `db:"salt" json:"salt"`
 	Email               string                 `db:"email" json:"email"`
-	FirstName           pgtype.Text            `db:"first_name" json:"first_name"`
-	LastName            pgtype.Text            `db:"last_name" json:"last_name"`
-	PhoneNumber         pgtype.Text            `db:"phone_number" json:"phone_number"`
+	FirstName           *string                `db:"first_name" json:"first_name"`
+	LastName            *string                `db:"last_name" json:"last_name"`
+	PhoneNumber         *string                `db:"phone_number" json:"phone_number"`
 	DateOfBirth         pgtype.Date            `db:"date_of_birth" json:"date_of_birth"`
 	Gender              NullGender             `db:"gender" json:"gender"`
-	Bio                 pgtype.Text            `db:"bio" json:"bio"`
+	Bio                 *string                `db:"bio" json:"bio"`
 	LanguagePreference  NullLanguagePreference `db:"language_preference" json:"language_preference"`
 	CreatedAt           pgtype.Timestamp       `db:"created_at" json:"created_at"`
 	UpdatedAt           pgtype.Timestamp       `db:"updated_at" json:"updated_at"`
-	FailedLoginAttempts pgtype.Int4            `db:"failed_login_attempts" json:"failed_login_attempts"`
-	IsVerified          pgtype.Bool            `db:"is_verified" json:"is_verified"`
+	FailedLoginAttempts *int32                 `db:"failed_login_attempts" json:"failed_login_attempts"`
+	IsVerified          *bool                  `db:"is_verified" json:"is_verified"`
 }

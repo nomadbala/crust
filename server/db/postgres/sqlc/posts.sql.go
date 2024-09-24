@@ -8,7 +8,7 @@ package sqlc
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
 const createPost = `-- name: CreatePost :one
@@ -18,8 +18,8 @@ INSERT INTO posts (
 `
 
 type CreatePostParams struct {
-	UserID  pgtype.UUID `db:"user_id" json:"user_id"`
-	Content string      `db:"content" json:"content"`
+	UserID  uuid.UUID `db:"user_id" json:"user_id"`
+	Content string    `db:"content" json:"content"`
 }
 
 func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, error) {
@@ -78,7 +78,7 @@ SELECT id, user_id, content, created_at, views FROM posts
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetPostById(ctx context.Context, id pgtype.UUID) (Post, error) {
+func (q *Queries) GetPostById(ctx context.Context, id uuid.UUID) (Post, error) {
 	row := q.db.QueryRow(ctx, getPostById, id)
 	var i Post
 	err := row.Scan(

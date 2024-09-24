@@ -1,18 +1,19 @@
 package post
 
 import (
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nomadbala/crust/server/db/postgres/sqlc"
 )
 
 type CreatePostRequest struct {
-	UserId  pgtype.UUID `json:"user_id"`
-	Content string      `json:"content"`
+	UserId  uuid.UUID `json:"user_id"`
+	Content string    `json:"content"`
 }
 
 type Response struct {
-	Id        pgtype.UUID      `json:"id"`
-	UserId    pgtype.UUID      `json:"user_id"`
+	Id        uuid.UUID        `json:"id"`
+	UserId    uuid.UUID        `json:"user_id"`
 	Content   string           `json:"content"`
 	CreatedAt pgtype.Timestamp `json:"created_at"`
 }

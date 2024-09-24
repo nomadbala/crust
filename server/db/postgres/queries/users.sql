@@ -9,6 +9,10 @@ WHERE id = $1 LIMIT  1;
 SELECT id, password_hash, salt FROM users
 WHERE username = $1;
 
+-- name: GetEmailById :one
+SELECT users.email FROM users
+WHERE id = $1;
+
 -- name: CreateUser :one
 INSERT INTO users (
     username, password_hash, salt, email
