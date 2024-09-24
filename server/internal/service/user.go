@@ -35,7 +35,7 @@ func (s *UsersService) SendEmailVerification(id uuid.UUID) (bool, error) {
 	}
 
 	code := email.GenerateVerificationCode()
-	err = email.SendVerificationEmail(receiver, code)
+	err = email.SendVerificationEmail(*receiver, code)
 	if err != nil {
 		return false, err
 	}

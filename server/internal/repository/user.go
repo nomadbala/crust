@@ -2,9 +2,9 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"github.com/google/uuid"
 	"github.com/nomadbala/crust/server/db/postgres/sqlc"
+	"github.com/nomadbala/crust/server/internal/domain/user"
 )
 
 type UsersRepository struct {
@@ -25,43 +25,45 @@ func (r UsersRepository) List() ([]sqlc.User, error) {
 	return users, nil
 }
 
-func (r UsersRepository) Get(username string) (id uuid.UUID, password, salt string, err error) {
-	var getUserRow sqlc.GetUserRow
-	getUserRow, err = r.queries.GetUser(r.ctx, username)
+func (r UsersRepository) Get(username string) (*user.UserCredentials, error) {
+	var credentials sqlc.GetUserRow
+	credentials, err := r.queries.GetUser(r.ctx, username)
 	if err != nil {
-		return uuid.Nil, "", "", err
+		return nil, err
 	}
 
-	return getUserRow.ID, getUserRow.PasswordHash, getUserRow.Salt, nil
+	return &user.UserCredentials{
+		ID:       credentials.ID,
+		Password: credentials.PasswordHash,
+		Salt:     credentials.Salt,
+	}, nil
 }
 
-func (r UsersRepository) GetById(uuid uuid.UUID) (sqlc.User, error) {
+func (r UsersRepository) GetById(uuid uuid.UUID) (*sqlc.User, error) {
 	user, err := r.queries.GetUserById(r.ctx, uuid)
 	if err != nil {
-		return sqlc.User{}, err
+		return nil, err
 	}
 
-	return user, nil
+	return &user, nil
 }
 
-func (r UsersRepository) GetEmailById(id uuid.UUID) (string, error) {
+func (r UsersRepository) GetEmailById(id uuid.UUID) (*string, error) {
 	email, err := r.queries.GetEmailById(r.ctx, id)
-	fmt.Println("reposi")
-	fmt.Println(id)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return email, nil
+	return &email, nil
 }
 
-func (r UsersRepository) Create(params sqlc.CreateUserParams) (sqlc.User, error) {
+func (r UsersRepository) Create(params sqlc.CreateUserParams) (*sqlc.User, error) {
 	user, err := r.queries.CreateUser(r.ctx, params)
 	if err != nil {
-		return sqlc.User{}, err
+		return nil, err
 	}
 
-	return user, nil
+	return &user, nil
 }
 
 func (r UsersRepository) VerifyEmail(id uuid.UUID) error {

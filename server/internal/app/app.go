@@ -6,6 +6,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/nomadbala/crust/server/db/postgres/sqlc"
 	"github.com/nomadbala/crust/server/internal/cache"
+	"github.com/nomadbala/crust/server/internal/config"
 	"github.com/nomadbala/crust/server/internal/handler"
 	"github.com/nomadbala/crust/server/internal/repository"
 	"github.com/nomadbala/crust/server/internal/service"
@@ -42,6 +43,8 @@ func Run() {
 			log.Logger.Error("failed to close connection", zap.Error(err))
 		}
 	}(conn, ctx)
+
+	config.New()
 
 	repos := repository.New(sqlc.New(conn), ctx)
 

@@ -7,6 +7,6 @@ import (
 
 type Service interface {
 	SignUp(request RegistrationRequest) (*user.Response, error)
-	SignIn(request LoginRequest) (string, error)
+	SignIn(request LoginRequest) (*string, error)
 	ParseToken(accessToken string) (uuid.UUID, error)
 }

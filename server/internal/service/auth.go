@@ -7,6 +7,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 	"github.com/nomadbala/crust/server/db/postgres/sqlc"
+	"github.com/nomadbala/crust/server/internal/config"
 	"github.com/nomadbala/crust/server/internal/domain/auth"
 	"github.com/nomadbala/crust/server/internal/domain/user"
 	"golang.org/x/crypto/bcrypt"
@@ -17,16 +18,16 @@ type AuthenticationService struct {
 	repository user.Repository
 }
 
-const (
-	expiresDate = 12 * time.Hour
-	signingKey  = "dawjejiaswehiawh"
+var (
+	ErrorInvalidUsernameOrPassword = errors.New("unable to sign in. Username or password are invalid. Try again")
+	ErrorTokenGenerationFailed     = errors.New("failed to generate a valid token. Please try again or contact support")
 )
 
 func NewAuthenticationService(repository user.Repository) *AuthenticationService {
 	return &AuthenticationService{repository}
 }
 
-func (s AuthenticationService) SignUp(request auth.RegistrationRequest) (*user.Response, error) {
+func (s *AuthenticationService) SignUp(request auth.RegistrationRequest) (*user.Response, error) {
 	salt, err := GenerateSalt()
 	if err != nil {
 		return nil, err
@@ -49,33 +50,33 @@ func (s AuthenticationService) SignUp(request auth.RegistrationRequest) (*user.R
 		return nil, err
 	}
 
-	return user.ConvertEntityToResponse(savedUser), nil
+	return user.ConvertEntityToResponse(*savedUser), nil
 }
 
-func (s AuthenticationService) SignIn(request auth.LoginRequest) (string, error) {
-	id, passwordHashFromDB, salt, err := s.repository.Get(request.Username)
+func (s *AuthenticationService) SignIn(request auth.LoginRequest) (*string, error) {
+	credentials, err := s.repository.Get(request.Username)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(passwordHashFromDB), []byte(request.Password+salt)); err != nil {
-		return "", errors.New("invalid username or password")
+	if err := bcrypt.CompareHashAndPassword([]byte(credentials.Password), []byte(request.Password+credentials.Salt)); err != nil {
+		return nil, ErrorInvalidUsernameOrPassword
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &auth.TokenClaims{
-		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(expiresDate).Unix(),
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(config.JWT_TOKEN_EXPIRES_DATE).Unix(),
 			IssuedAt:  time.Now().Unix(),
 		},
-		id,
+		UserId: credentials.ID,
 	})
 
-	tokenString, err := token.SignedString([]byte(signingKey))
-	if err != nil {
-		return "", err
+	accessToken, err := token.SignedString([]byte(config.JWT_TOKEN_SIGNING_KEY))
+	if err != nil || accessToken == "" {
+		return nil, ErrorTokenGenerationFailed
 	}
 
-	return tokenString, nil
+	return &accessToken, nil
 }
 
 func (s *AuthenticationService) ParseToken(accessToken string) (uuid.UUID, error) {
@@ -84,7 +85,7 @@ func (s *AuthenticationService) ParseToken(accessToken string) (uuid.UUID, error
 			return nil, errors.New("invalid signing method")
 		}
 
-		return []byte(signingKey), nil
+		return []byte(config.JWT_TOKEN_SIGNING_KEY), nil
 	})
 
 	if err != nil {

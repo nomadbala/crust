@@ -23,20 +23,15 @@ func (p PostsService) List() ([]*post.Response, error) {
 		return nil, err
 	}
 
-	responses := post.ConvertEntitiesToResponses(posts)
+	response := post.ConvertEntitiesToResponses(posts)
 
-	return responses, nil
+	return response, nil
 }
 
 func (p PostsService) Get(id uuid.UUID) (*post.Response, error) {
 	cachedPost, err := p.cache.Get(id)
 	if err == nil {
-		return &post.Response{
-			Id:        cachedPost.ID,
-			UserId:    cachedPost.UserID,
-			Content:   cachedPost.Content + " Redis",
-			CreatedAt: cachedPost.CreatedAt,
-		}, nil
+		return post.ConvertEntityToResponse(cachedPost), nil
 	}
 
 	savedPost, err := p.repository.Get(id)
@@ -45,25 +40,12 @@ func (p PostsService) Get(id uuid.UUID) (*post.Response, error) {
 	}
 
 	go func() {
-		if cacheErr := p.cache.Set(id, savedPost); cacheErr != nil {
+		if cacheErr := p.cache.Set(id, *savedPost); cacheErr != nil {
 			log.Logger.Error("Error caching post: %v", zap.Error(cacheErr))
 		}
 	}()
 
-	return post.ConvertEntityToResponse(savedPost), nil
-}
-
-func (p PostsService) GetPopular(limit, offset int) ([]*post.Response, error) {
-	params := sqlc.GetPopularPostsParams{Limit: int32(limit), Offset: int32(offset)}
-
-	posts, err := p.repository.GetPopular(params)
-	if err != nil {
-		return nil, err
-	}
-
-	responses := post.ConvertEntitiesToResponses(posts)
-
-	return responses, nil
+	return post.ConvertEntityToResponse(*savedPost), nil
 }
 
 func (p PostsService) Create(params sqlc.CreatePostParams) (*post.Response, error) {
@@ -72,7 +54,7 @@ func (p PostsService) Create(params sqlc.CreatePostParams) (*post.Response, erro
 		return nil, err
 	}
 
-	response := post.ConvertEntityToResponse(savedPost)
+	response := post.ConvertEntityToResponse(*savedPost)
 
 	return response, nil
 }

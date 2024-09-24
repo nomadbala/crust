@@ -8,9 +8,7 @@ import (
 	"github.com/nomadbala/crust/server/internal/repository"
 )
 
-type Configuration struct {
-	SigningKey string
-}
+type Configuration struct{}
 
 type Service struct {
 	UsersService user.Service

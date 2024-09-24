@@ -8,6 +8,5 @@ import (
 type Service interface {
 	List() ([]*Response, error)
 	Get(id uuid.UUID) (*Response, error)
-	GetPopular(limit, offset int) ([]*Response, error)
 	Create(params sqlc.CreatePostParams) (*Response, error)
 }

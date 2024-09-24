@@ -19,6 +19,12 @@ type Response struct {
 	LanguagePreference *sqlc.LanguagePreference `db:"language_preference" json:"language_preference"`
 }
 
+type UserCredentials struct {
+	ID       uuid.UUID `db:"id" json:"id"`
+	Password string    `db:"password" json:"password"`
+	Salt     string    `db:"salt" json:"salt"`
+}
+
 func ConvertEntityToResponse(entity sqlc.User) *Response {
 	return &Response{
 		ID:       entity.ID,

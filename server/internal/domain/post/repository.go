@@ -7,7 +7,7 @@ import (
 
 type Repository interface {
 	List() ([]sqlc.Post, error)
-	Get(id uuid.UUID) (sqlc.Post, error)
+	Get(id uuid.UUID) (*sqlc.Post, error)
 	GetPopular(params sqlc.GetPopularPostsParams) ([]sqlc.Post, error)
-	Create(sqlc.CreatePostParams) (sqlc.Post, error)
+	Create(sqlc.CreatePostParams) (*sqlc.Post, error)
 }

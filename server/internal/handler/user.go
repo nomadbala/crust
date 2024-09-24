@@ -7,15 +7,15 @@ import (
 )
 
 var (
-	ErrorFailedToSendVerificationEmail = errors.New("Unable to send verification email. Please check the email server configuration and try again.")
-	ErrorVerificationCodeRequired      = errors.New("A verification code must be provided in the request.")
-	ErrorEmailVerificationFailed       = errors.New("Email verification was unsuccessful. Please ensure the code is correct and try again.")
-	ErrorVerificationExpiredOrInvalid  = errors.New("The verification code is either expired or invalid. Please request a new code.")
+	ErrorFailedToSendVerificationEmail = errors.New("unable to send verification email. Please check the email server configuration and try again")
+	ErrorVerificationCodeRequired      = errors.New("a verification code must be provided in the request")
+	ErrorEmailVerificationFailed       = errors.New("email verification was unsuccessful. Please ensure the code is correct and try again")
+	ErrorVerificationExpiredOrInvalid  = errors.New("the verification code is either expired or invalid. Please request a new code")
 )
 
 var (
-	SuccessfullySentVerificationEmail = "Verification email sent successfully. Please check your inbox."
-	SuccessfullyVerifiedEmail         = "Your email has been verified successfully. You can now proceed with your account."
+	SuccessfullySentVerificationEmail = "verification email sent successfully. Please check your inbox"
+	SuccessfullyVerifiedEmail         = "your email has been verified successfully. You can now proceed with your account"
 )
 
 func (h *Handler) GetAllUsers(c *gin.Context) {

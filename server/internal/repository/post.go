@@ -24,13 +24,13 @@ func (p PostsRepository) List() ([]sqlc.Post, error) {
 	return posts, nil
 }
 
-func (p PostsRepository) Get(id uuid.UUID) (sqlc.Post, error) {
+func (p PostsRepository) Get(id uuid.UUID) (*sqlc.Post, error) {
 	post, err := p.queries.GetPostById(p.ctx, id)
 	if err != nil {
-		return sqlc.Post{}, err
+		return nil, err
 	}
 
-	return post, nil
+	return &post, nil
 }
 
 func (p PostsRepository) GetPopular(params sqlc.GetPopularPostsParams) ([]sqlc.Post, error) {
@@ -42,11 +42,11 @@ func (p PostsRepository) GetPopular(params sqlc.GetPopularPostsParams) ([]sqlc.P
 	return posts, nil
 }
 
-func (p PostsRepository) Create(params sqlc.CreatePostParams) (sqlc.Post, error) {
+func (p PostsRepository) Create(params sqlc.CreatePostParams) (*sqlc.Post, error) {
 	post, err := p.queries.CreatePost(p.ctx, params)
 	if err != nil {
-		return sqlc.Post{}, err
+		return nil, err
 	}
 
-	return post, nil
+	return &post, nil
 }

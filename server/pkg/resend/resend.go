@@ -22,13 +22,11 @@ func SendResendMessage(receiver, message string) error {
 		Subject: "Crust",
 	}
 
-	sent, err := client.Emails.Send(params)
+	_, err := client.Emails.Send(params)
 	if err != nil {
 		log.Logger.Error("error occurred while sending message via resend", zap.Error(err))
 		return err
 	}
-
-	log.Logger.Info("message successfully delivered", zap.Any("sent_id", sent.Id))
 
 	return nil
 }
