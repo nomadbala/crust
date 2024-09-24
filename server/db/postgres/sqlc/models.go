@@ -132,6 +132,7 @@ type User struct {
 	PasswordHash        string                 `db:"password_hash" json:"password_hash"`
 	Salt                string                 `db:"salt" json:"salt"`
 	Email               string                 `db:"email" json:"email"`
+	EmailVerified       *bool                  `db:"email_verified" json:"email_verified"`
 	FirstName           *string                `db:"first_name" json:"first_name"`
 	LastName            *string                `db:"last_name" json:"last_name"`
 	PhoneNumber         *string                `db:"phone_number" json:"phone_number"`
@@ -142,5 +143,4 @@ type User struct {
 	CreatedAt           pgtype.Timestamp       `db:"created_at" json:"created_at"`
 	UpdatedAt           pgtype.Timestamp       `db:"updated_at" json:"updated_at"`
 	FailedLoginAttempts *int32                 `db:"failed_login_attempts" json:"failed_login_attempts"`
-	IsVerified          *bool                  `db:"is_verified" json:"is_verified"`
 }

@@ -20,7 +20,7 @@ type Service struct {
 
 func New(r *repository.Repository, cache *cache.Cache) *Service {
 	return &Service{
-		UsersService: NewUsersService(r.UsersRepository),
+		UsersService: NewUsersService(r.UsersRepository, cache.VerificationCache),
 		AuthService:  NewAuthenticationService(r.UsersRepository),
 		PostsService: NewPostsService(r.PostsRepository, cache.PostCache),
 	}

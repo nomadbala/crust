@@ -15,7 +15,7 @@ func (h *Handler) GetAllPosts(c *gin.Context) {
 	}
 
 	if len(posts) == 0 {
-		c.AbortWithStatus(http.StatusNoContent)
+		c.Status(http.StatusNoContent)
 		return
 	}
 
@@ -23,10 +23,9 @@ func (h *Handler) GetAllPosts(c *gin.Context) {
 }
 
 func (h *Handler) GetPostById(c *gin.Context) {
-	idStr := c.Param("id")
+	param := c.Param("id")
 
-	var id uuid.UUID
-	err := id.Scan(idStr)
+	id, err := uuid.Parse(param)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
@@ -42,17 +41,18 @@ func (h *Handler) GetPostById(c *gin.Context) {
 }
 
 func (h *Handler) CreatePost(c *gin.Context) {
-	var params sqlc.CreatePostParams
+	var param sqlc.CreatePostParams
 
-	if err := c.ShouldBindJSON(&params); err != nil {
+	if err := c.ShouldBindJSON(&param); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
 	}
 
-	post, err := h.services.PostsService.Create(params)
+	post, err := h.services.PostsService.Create(param)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
 	}
 
 	c.JSON(http.StatusCreated, post)
-
 }

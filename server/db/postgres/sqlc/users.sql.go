@@ -14,17 +14,23 @@ import (
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
     username, password_hash, salt, email
-) VALUES ($1, $2, $3, $3) RETURNING id, username, password_hash, salt, email, first_name, last_name, phone_number, date_of_birth, gender, bio, language_preference, created_at, updated_at, failed_login_attempts, is_verified
+) VALUES ($1, $2, $3, $4) RETURNING id, username, password_hash, salt, email, email_verified, first_name, last_name, phone_number, date_of_birth, gender, bio, language_preference, created_at, updated_at, failed_login_attempts
 `
 
 type CreateUserParams struct {
 	Username     string `db:"username" json:"username"`
 	PasswordHash string `db:"password_hash" json:"password_hash"`
 	Salt         string `db:"salt" json:"salt"`
+	Email        string `db:"email" json:"email"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRow(ctx, createUser, arg.Username, arg.PasswordHash, arg.Salt)
+	row := q.db.QueryRow(ctx, createUser,
+		arg.Username,
+		arg.PasswordHash,
+		arg.Salt,
+		arg.Email,
+	)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -32,6 +38,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.PasswordHash,
 		&i.Salt,
 		&i.Email,
+		&i.EmailVerified,
 		&i.FirstName,
 		&i.LastName,
 		&i.PhoneNumber,
@@ -42,7 +49,6 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.FailedLoginAttempts,
-		&i.IsVerified,
 	)
 	return i, err
 }
@@ -78,7 +84,7 @@ func (q *Queries) GetUser(ctx context.Context, username string) (GetUserRow, err
 }
 
 const getUserById = `-- name: GetUserById :one
-SELECT id, username, password_hash, salt, email, first_name, last_name, phone_number, date_of_birth, gender, bio, language_preference, created_at, updated_at, failed_login_attempts, is_verified FROM users
+SELECT id, username, password_hash, salt, email, email_verified, first_name, last_name, phone_number, date_of_birth, gender, bio, language_preference, created_at, updated_at, failed_login_attempts FROM users
 WHERE id = $1 LIMIT  1
 `
 
@@ -91,6 +97,7 @@ func (q *Queries) GetUserById(ctx context.Context, id uuid.UUID) (User, error) {
 		&i.PasswordHash,
 		&i.Salt,
 		&i.Email,
+		&i.EmailVerified,
 		&i.FirstName,
 		&i.LastName,
 		&i.PhoneNumber,
@@ -101,13 +108,12 @@ func (q *Queries) GetUserById(ctx context.Context, id uuid.UUID) (User, error) {
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.FailedLoginAttempts,
-		&i.IsVerified,
 	)
 	return i, err
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT id, username, password_hash, salt, email, first_name, last_name, phone_number, date_of_birth, gender, bio, language_preference, created_at, updated_at, failed_login_attempts, is_verified FROM users
+SELECT id, username, password_hash, salt, email, email_verified, first_name, last_name, phone_number, date_of_birth, gender, bio, language_preference, created_at, updated_at, failed_login_attempts FROM users
 `
 
 func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
@@ -125,6 +131,7 @@ func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
 			&i.PasswordHash,
 			&i.Salt,
 			&i.Email,
+			&i.EmailVerified,
 			&i.FirstName,
 			&i.LastName,
 			&i.PhoneNumber,
@@ -135,7 +142,6 @@ func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.FailedLoginAttempts,
-			&i.IsVerified,
 		); err != nil {
 			return nil, err
 		}
@@ -145,4 +151,15 @@ func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const verifyEmail = `-- name: VerifyEmail :exec
+UPDATE users
+set email_verified = true
+WHERE id = $1
+`
+
+func (q *Queries) VerifyEmail(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, verifyEmail, id)
+	return err
 }

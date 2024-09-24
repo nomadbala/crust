@@ -13,7 +13,12 @@ WHERE username = $1;
 SELECT users.email FROM users
 WHERE id = $1;
 
+-- name: VerifyEmail :exec
+UPDATE users
+set email_verified = true
+WHERE id = $1;
+
 -- name: CreateUser :one
 INSERT INTO users (
     username, password_hash, salt, email
-) VALUES ($1, $2, $3, $3) RETURNING *;
+) VALUES ($1, $2, $3, $4) RETURNING *;

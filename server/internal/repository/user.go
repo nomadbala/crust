@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/nomadbala/crust/server/db/postgres/sqlc"
 )
@@ -43,14 +44,16 @@ func (r UsersRepository) GetById(uuid uuid.UUID) (sqlc.User, error) {
 	return user, nil
 }
 
-//func (r UsersRepository) GetEmailById(uuid uuid.UUID) (string, error) {
-//	email, err := r.queries.GetEmailById(r.ctx, uuid)
-//	if err != nil {
-//		return "", err
-//	}
-//
-//	return email, nil
-//}
+func (r UsersRepository) GetEmailById(id uuid.UUID) (string, error) {
+	email, err := r.queries.GetEmailById(r.ctx, id)
+	fmt.Println("reposi")
+	fmt.Println(id)
+	if err != nil {
+		return "", err
+	}
+
+	return email, nil
+}
 
 func (r UsersRepository) Create(params sqlc.CreateUserParams) (sqlc.User, error) {
 	user, err := r.queries.CreateUser(r.ctx, params)
@@ -59,4 +62,13 @@ func (r UsersRepository) Create(params sqlc.CreateUserParams) (sqlc.User, error)
 	}
 
 	return user, nil
+}
+
+func (r UsersRepository) VerifyEmail(id uuid.UUID) error {
+	err := r.queries.VerifyEmail(r.ctx, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

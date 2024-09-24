@@ -41,6 +41,7 @@ func (s AuthenticationService) SignUp(request auth.RegistrationRequest) (*user.R
 		Username:     request.Username,
 		PasswordHash: hashedPassword,
 		Salt:         salt,
+		Email:        request.Email,
 	}
 
 	savedUser, err := s.repository.Create(params)

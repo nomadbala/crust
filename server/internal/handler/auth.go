@@ -9,20 +9,18 @@ import (
 func (h *Handler) SignUp(c *gin.Context) {
 	var request auth.RegistrationRequest
 
-	if err := c.BindJSON(&request); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
-	err := auth.ParseRegistrationRequest(request)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-		return
+	if err := auth.ParseRegistrationRequest(request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 	}
 
 	user, err := h.services.AuthService.SignUp(request)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
 
@@ -32,7 +30,7 @@ func (h *Handler) SignUp(c *gin.Context) {
 func (h *Handler) SignIn(c *gin.Context) {
 	var request auth.LoginRequest
 
-	if err := c.BindJSON(&request); err != nil {
+	if err := c.ShouldBindJSON(&request); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}

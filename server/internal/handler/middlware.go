@@ -9,21 +9,28 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (h *Handler) Middleware(c *gin.Context) {
-	const authHeaderPrefix = "Bearer "
+const (
+	authorizationHeaderPrefix = "Bearer "
+)
 
+var (
+	ErrorUserIdNotFound      = errors.New("user id not found")
+	ErrorInvalidUserIdFormat = errors.New("invalid user id format")
+)
+
+func (h *Handler) Middleware(c *gin.Context) {
 	header := c.GetHeader("Authorization")
 	if header == "" {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "No Authorization header"})
 		return
 	}
 
-	if !strings.HasPrefix(header, authHeaderPrefix) {
+	if !strings.HasPrefix(header, authorizationHeaderPrefix) {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid Authorization header"})
 		return
 	}
 
-	token := strings.TrimPrefix(header, authHeaderPrefix)
+	token := strings.TrimPrefix(header, authorizationHeaderPrefix)
 	userId, err := h.services.AuthService.ParseToken(token)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
@@ -33,24 +40,16 @@ func (h *Handler) Middleware(c *gin.Context) {
 	c.Set("userId", userId)
 }
 
-func getUserId(c *gin.Context) (uuid.UUID, error) {
+func GetUserIdFromAccessToken(c *gin.Context) (uuid.UUID, error) {
 	id, exists := c.Get("userId")
 	if !exists {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "No user id found"})
-		return uuid.Nil, errors.New("user id not found")
+		return uuid.Nil, ErrorUserIdNotFound
 	}
 
-	userId, ok := id.(string)
+	userId, ok := id.(uuid.UUID)
 	if !ok {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid user id format"})
-		return uuid.Nil, errors.New("invalid user id format")
+		return uuid.Nil, ErrorInvalidUserIdFormat
 	}
 
-	parsedUUID, err := uuid.Parse(userId)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid UUID"})
-		return uuid.Nil, errors.New("invalid UUID format")
-	}
-
-	return parsedUUID, nil
+	return userId, nil
 }

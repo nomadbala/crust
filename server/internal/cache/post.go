@@ -16,8 +16,8 @@ func NewPostCache(client *store.RedisClient) *PostCache {
 	return &PostCache{client}
 }
 
-func (p PostCache) Get(id uuid.UUID) (sqlc.Post, error) {
-	data, err := p.client.Get(id.String())
+func (c PostCache) Get(id uuid.UUID) (sqlc.Post, error) {
+	data, err := c.client.Get("post_id_" + id.String())
 	if err != nil {
 		return sqlc.Post{}, err
 	}
@@ -30,17 +30,17 @@ func (p PostCache) Get(id uuid.UUID) (sqlc.Post, error) {
 	return post, nil
 }
 
-func (p PostCache) Set(key uuid.UUID, value sqlc.Post) error {
+func (c PostCache) Set(key uuid.UUID, value sqlc.Post) error {
 	packed, err := msgpack.Marshal(value)
 	if err != nil {
 		return err
 	}
 
-	return p.client.Set(key.String(), packed, 15*time.Minute)
+	return c.client.Set("post_id_"+key.String(), packed, 15*time.Minute)
 }
 
-func (p PostCache) Del(key uuid.UUID) error {
-	err := p.client.Del(key.String())
+func (c PostCache) Del(key uuid.UUID) error {
+	err := c.client.Del("post_id_" + key.String())
 	if err != nil {
 		return err
 	}

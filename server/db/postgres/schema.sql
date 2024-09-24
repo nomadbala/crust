@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS users
     password_hash         VARCHAR(255) NOT NULL,
     salt                  VARCHAR(255) NOT NULL,
     email                 VARCHAR(255) NOT NULL UNIQUE,
+    email_verified           BOOLEAN          DEFAULT FALSE,
     first_name            VARCHAR(255),
     last_name             VARCHAR(255),
     phone_number          VARCHAR(20),
@@ -18,8 +19,7 @@ CREATE TABLE IF NOT EXISTS users
     language_preference   LANGUAGE_PREFERENCE,
     created_at            TIMESTAMP        DEFAULT CURRENT_TIMESTAMP,
     updated_at            TIMESTAMP        DEFAULT CURRENT_TIMESTAMP,
-    failed_login_attempts INT              DEFAULT 0,
-    is_verified           BOOLEAN          DEFAULT FALSE
+    failed_login_attempts INT              DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS posts
