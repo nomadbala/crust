@@ -16,6 +16,7 @@ import (
 
 type AuthenticationService struct {
 	repository user.Repository
+	cfg        config.Token
 }
 
 var (
@@ -23,8 +24,8 @@ var (
 	ErrorTokenGenerationFailed     = errors.New("failed to generate a valid token. Please try again or contact support")
 )
 
-func NewAuthenticationService(repository user.Repository) *AuthenticationService {
-	return &AuthenticationService{repository}
+func NewAuthenticationService(repository user.Repository, cfg config.Token) *AuthenticationService {
+	return &AuthenticationService{repository, cfg}
 }
 
 func (s *AuthenticationService) SignUp(request auth.RegistrationRequest) (*user.Response, error) {
@@ -65,13 +66,13 @@ func (s *AuthenticationService) SignIn(request auth.LoginRequest) (*string, erro
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &auth.TokenClaims{
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(config.JWT_TOKEN_EXPIRES_DATE).Unix(),
+			ExpiresAt: time.Now().Add(s.cfg.Expires).Unix(),
 			IssuedAt:  time.Now().Unix(),
 		},
 		UserId: credentials.ID,
 	})
 
-	accessToken, err := token.SignedString([]byte(config.JWT_TOKEN_SIGNING_KEY))
+	accessToken, err := token.SignedString([]byte(s.cfg.SigningKey))
 	if err != nil || accessToken == "" {
 		return nil, ErrorTokenGenerationFailed
 	}
@@ -85,7 +86,7 @@ func (s *AuthenticationService) ParseToken(accessToken string) (uuid.UUID, error
 			return nil, errors.New("invalid signing method")
 		}
 
-		return []byte(config.JWT_TOKEN_SIGNING_KEY), nil
+		return []byte(s.cfg.SigningKey), nil
 	})
 
 	if err != nil {

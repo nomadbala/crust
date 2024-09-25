@@ -2,22 +2,22 @@ package server
 
 import (
 	"context"
+	"github.com/nomadbala/crust/server/internal/config"
 	"net/http"
-	"time"
 )
 
 type Server struct {
 	httpServer *http.Server
 }
 
-func New(port string, handler http.Handler) *Server {
+func New(cfg config.App, handler http.Handler) *Server {
 	return &Server{
 		httpServer: &http.Server{
-			Addr:           ":" + port,
+			Addr:           ":" + cfg.Port,
 			Handler:        handler,
-			MaxHeaderBytes: 1 << 20,
-			ReadTimeout:    10 * time.Second,
-			WriteTimeout:   10 * time.Second,
+			MaxHeaderBytes: cfg.MaxHeaderBytes,
+			ReadTimeout:    cfg.ReadTimeout,
+			WriteTimeout:   cfg.WriteTimeout,
 		},
 	}
 }

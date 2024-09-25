@@ -2,7 +2,7 @@ module github.com/nomadbala/crust/server
 
 go 1.23
 
-toolchain go1.23.1
+//toolchain go1.23.1
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible

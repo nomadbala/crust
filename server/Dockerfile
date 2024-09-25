@@ -1,27 +1,29 @@
-# syntax=docker/dockerfile:1
+# Определите базовый образ для сборки приложения (Go 1.23 на Alpine Linux)
+FROM golang:1.23-alpine as builder
 
-FROM golang:1.23
+# Установите необходимые зависимости, включая OpenSSL и инструменты разработки
+# RUN apk add --update --no-cache openssl curl g++ gcc libxslt-dev
 
-# Set destination for COPY
-WORKDIR /app
+# Установите рабочую директорию внутри контейнера сборки
+WORKDIR /build
 
-# Download Go modules
-COPY go.mod go.sum ./
-RUN go mod download
+# Скопируйте исходный код в контейнер сборки
+COPY . .
 
-# Copy the source code. Note the slash at the end, as explained in
-# https://docs.docker.com/reference/dockerfile/#copy
-COPY *.go ./
+# Соберите приложение Go для Linux (amd64) без использования CGO
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o server .
 
-# Build
-RUN CGO_ENABLED=0 GOOS=linux go build -o /docker-gs-ping
+# Создайте новую стадию для финального образа приложения (на основе Alpine Linux)
+FROM alpine:3.18 as hoster
 
-# Optional:
-# To bind to a TCP port, runtime parameters must be supplied to the docker command.
-# But we can document in the Dockerfile what ports
-# the application is going to listen on by default.
-# https://docs.docker.com/reference/dockerfile/#expose
-EXPOSE 8080
+# Установите необходимые зависимости, включая cURL и инструменты разработки
+# RUN apk add --update --no-cache openssl curl g++ gcc libxslt-dev
 
-# Run
-CMD ["/docker-gs-ping"]
+# Скопируйте конфигурационные файлы и собранное приложение из стадии сборки
+COPY --from=builder /build/.env ./.env
+#COPY --from=builder /build/assets ./assets
+#COPY --from=builder /build/templates ./templates
+COPY --from=builder /build/server ./server
+
+# Определите точку входа для финального образа приложения
+ENTRYPOINT ["./server"]

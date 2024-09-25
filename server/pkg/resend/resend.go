@@ -2,16 +2,16 @@ package resend
 
 import (
 	"fmt"
+	"github.com/nomadbala/crust/server/internal/config"
 	"github.com/nomadbala/crust/server/pkg/log"
 	"github.com/resend/resend-go/v2"
 	"go.uber.org/zap"
-	"os"
 )
 
 var client *resend.Client
 
-func ConfigureResendClient() {
-	client = resend.NewClient(os.Getenv("RESEND_API_KEY_2"))
+func ConfigureResendClient(cfg config.Resend) {
+	client = resend.NewClient(cfg.ApiKey)
 }
 
 func SendResendMessage(receiver, message string) error {

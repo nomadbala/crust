@@ -9,15 +9,16 @@ import (
 )
 
 type PostCache struct {
-	client *store.RedisClient
+	client       *store.RedisClient
+	CACHE_PREFIX string
 }
 
 func NewPostCache(client *store.RedisClient) *PostCache {
-	return &PostCache{client}
+	return &PostCache{client, "post_id_"}
 }
 
 func (c PostCache) Get(id uuid.UUID) (sqlc.Post, error) {
-	data, err := c.client.Get("post_id_" + id.String())
+	data, err := c.client.Get(c.CACHE_PREFIX + id.String())
 	if err != nil {
 		return sqlc.Post{}, err
 	}
@@ -36,11 +37,11 @@ func (c PostCache) Set(key uuid.UUID, value sqlc.Post) error {
 		return err
 	}
 
-	return c.client.Set("post_id_"+key.String(), packed, 15*time.Minute)
+	return c.client.Set(c.CACHE_PREFIX+key.String(), packed, 15*time.Minute)
 }
 
 func (c PostCache) Del(key uuid.UUID) error {
-	err := c.client.Del("post_id_" + key.String())
+	err := c.client.Del(c.CACHE_PREFIX + key.String())
 	if err != nil {
 		return err
 	}

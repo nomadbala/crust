@@ -8,15 +8,16 @@ import (
 )
 
 type VerificationCache struct {
-	client *store.RedisClient
+	client       *store.RedisClient
+	CACHE_PREFIX string
 }
 
 func NewVerificationCache(client *store.RedisClient) *VerificationCache {
-	return &VerificationCache{client}
+	return &VerificationCache{client, "user_id_"}
 }
 
 func (c VerificationCache) Get(id uuid.UUID) (string, error) {
-	data, err := c.client.Get("user_id_" + id.String())
+	data, err := c.client.Get(c.CACHE_PREFIX + id.String())
 	if err != nil && data == "" {
 		return "", ErrorCacheNotFound
 	}
@@ -35,11 +36,11 @@ func (c VerificationCache) Set(id uuid.UUID, value string) error {
 		return err
 	}
 
-	return c.client.Set("user_id_"+id.String(), packed, 5*time.Minute)
+	return c.client.Set(c.CACHE_PREFIX+id.String(), packed, 5*time.Minute)
 }
 
 func (c VerificationCache) Delete(id uuid.UUID) error {
-	err := c.client.Del("user_id_" + id.String())
+	err := c.client.Del(c.CACHE_PREFIX + id.String())
 	if err != nil {
 		return err
 	}
